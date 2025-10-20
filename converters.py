@@ -25,22 +25,6 @@ class ImageFile:
         self._validate_file_type(file)
         self.file = file
 
-    def _validate_file_type(self, file: str) -> None:
-        """Validates that file is an image file, raises ValueError if not"""
-        file_type = self.mime.from_file(file)
-        if not file_type.startswith("image/"):
-            raise ValueError("Only image files can be passed to this object")
-
-    def _validate_extension(self, extension: str) -> str:
-        """Formats the extension given for internal class use"""
-        ext = extension.lower().lstrip(".")
-        supported = ",".join(self.SUPPORTED_FORMATS.keys())
-        if ext not in self.SUPPORTED_FORMATS:
-            raise ValueError(
-                f"Unsupported format: {extension}\nSupported formats: {supported}"
-            )
-        return self.SUPPORTED_FORMATS[ext]
-
     def convert(self, extension: str) -> Path:
         """Converts image file to given extension.
 
@@ -67,6 +51,22 @@ class ImageFile:
             return img.convert("RGB")
         else:
             return img
+
+    def _validate_file_type(self, file: str) -> None:
+        """Validates that file is an image file, raises ValueError if not"""
+        file_type = self.mime.from_file(file)
+        if not file_type.startswith("image/"):
+            raise ValueError("Only image files can be passed to this object")
+
+    def _validate_extension(self, extension: str) -> str:
+        """Formats the extension given for internal class use"""
+        ext = extension.lower().lstrip(".")
+        supported = ",".join(self.SUPPORTED_FORMATS.keys())
+        if ext not in self.SUPPORTED_FORMATS:
+            raise ValueError(
+                f"Unsupported format: {extension}\nSupported formats: {supported}"
+            )
+        return self.SUPPORTED_FORMATS[ext]
 
 
 if __name__ == "__main__":
