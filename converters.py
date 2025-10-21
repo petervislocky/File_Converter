@@ -2,6 +2,10 @@ import magic
 from PIL import Image
 from pathlib import Path
 
+# TODO: Figure out a way to add the common functionality this class will share
+# with other similar classes and add it to a base class and just let the other
+# classes inherit from it!
+
 
 class ImageFile:
     """One file is meant to be given to an instance of this class, and then
@@ -36,7 +40,6 @@ class ImageFile:
 
         if dot_ext == ".jpg":
             img = self._convert_to_rgb(img)
-
         input_path = Path(self.file)
         output_path = input_path.with_suffix(dot_ext)
         img.save(output_path, extension.upper())
