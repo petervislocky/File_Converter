@@ -1,0 +1,15 @@
+[project]
+name = "File Converter"
+version = "0.1.0"
+requires = ">=3.13"
+
+[tool.ruff]
+line-length = 88
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+
+[tool.pyright]
+pythonVersion = "3.13"
+typeCheckingMode = "basic"
