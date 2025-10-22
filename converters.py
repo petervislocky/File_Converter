@@ -1,13 +1,27 @@
-import magic
-from PIL import Image
 from pathlib import Path
 
-# TODO: Figure out a way to add the common functionality this class will share
-# with other similar classes and add it to a base class and just let the other
-# classes inherit from it!
+import magic
+from PIL import Image
 
 
-class ImageFile:
+class BaseFileConverter:
+    """Base class for all other converter classes to inherit from"""
+
+    def __init__(self, file: str) -> None:
+        self.mime = magic.Magic(mime=True)
+        self._validate_file_type(file)
+        self.file = file
+
+    def _validate_file_type(self, file: str) -> None:
+        """Validates that file is an image file, raises ValueError if not
+        Meant to be extended and overridden with file type of choice
+        """
+        file_type = self.mime.from_file(file)
+        if not file_type.startswith("image/"):
+            raise ValueError("Only image files can be passed to this object")
+
+
+class ImageFile(BaseFileConverter):
     """One file is meant to be given to an instance of this class, and then
     operations can be repeatedly executed on the same base file.
 
@@ -23,11 +37,6 @@ class ImageFile:
         "gif": ".gif",
         "pdf": ".pdf",
     }
-
-    def __init__(self, file: str) -> None:
-        self.mime = magic.Magic(mime=True)
-        self._validate_file_type(file)
-        self.file = file
 
     def convert(self, extension: str) -> Path:
         """Converts image file to given extension.
@@ -54,12 +63,6 @@ class ImageFile:
             return img.convert("RGB")
         else:
             return img
-
-    def _validate_file_type(self, file: str) -> None:
-        """Validates that file is an image file, raises ValueError if not"""
-        file_type = self.mime.from_file(file)
-        if not file_type.startswith("image/"):
-            raise ValueError("Only image files can be passed to this object")
 
     def _validate_extension(self, extension: str) -> str:
         """Formats the extension given for internal class use"""
