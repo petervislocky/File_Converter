@@ -1,10 +1,11 @@
+from abc import ABC, abstractmethod
 from pathlib import Path
 
 import magic
 from PIL import Image
 
 
-class BaseFileConverter:
+class BaseFileConverter(ABC):
     """Base class for all other converter classes to inherit from"""
 
     def __init__(self, file: str) -> None:
@@ -12,13 +13,9 @@ class BaseFileConverter:
         self._validate_file_type(file)
         self.file = file
 
+    @abstractmethod
     def _validate_file_type(self, file: str) -> None:
-        """Validates that file is an image file, raises ValueError if not
-        Meant to be extended and overridden with file type of choice
-        """
-        file_type = self.mime.from_file(file)
-        if not file_type.startswith("image/"):
-            raise ValueError("Only image files can be passed to this object")
+        pass
 
 
 class ImageFile(BaseFileConverter):
@@ -63,6 +60,14 @@ class ImageFile(BaseFileConverter):
             return img.convert("RGB")
         else:
             return img
+
+    def _validate_file_type(self, file: str) -> None:
+        """Validates that file is an image file, raises ValueError if not
+        Meant to be extended and overridden with file type of choice
+        """
+        file_type = self.mime.from_file(file)
+        if not file_type.startswith("image/"):
+            raise ValueError("Only image files can be passed to this object")
 
     def _validate_extension(self, extension: str) -> str:
         """Formats the extension given for internal class use"""

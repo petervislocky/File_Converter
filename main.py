@@ -3,7 +3,7 @@ from converters import ImageFile
 
 def main():
     print("File Converter")
-    print("Still in development, currently only supporting converting image files")
+    print("Still in development, current UI is for testing purposes only")
 
     path = input("Enter path of file to convert: ")
     ext = input("Enter the file format to convert to: ")
