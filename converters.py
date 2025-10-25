@@ -14,7 +14,13 @@ class BaseFileConverter(ABC):
         self.file = file
 
     @abstractmethod
+    def convert(self, extension: str) -> Path:
+        """Override and use to convert file to given extension"""
+        pass
+
+    @abstractmethod
     def _validate_file_type(self, file: str) -> None:
+        """Override and use to validate that the file type is correct for the class"""
         pass
 
 
@@ -78,6 +84,19 @@ class ImageFile(BaseFileConverter):
                 f"Unsupported format: {extension}\nSupported formats: {supported}"
             )
         return self.SUPPORTED_FORMATS[ext]
+
+
+class DocConverter(BaseFileConverter):
+    """For converter document file formats to other document file formats"""
+
+    SUPPORTED_FORMATS = {
+        "docx": ".docx",
+        "doc": ".doc",
+        "pdf": ".pdf",
+        "txt": ".txt",
+        "md": ".md",
+        "csv": ".csv",
+    }
 
 
 if __name__ == "__main__":
