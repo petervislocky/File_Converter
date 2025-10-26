@@ -2,6 +2,7 @@ from converters import ImageFile
 
 
 def main():
+    # Testing UI only
     print("File Converter")
     print("Still in development, current UI is for testing purposes only")
 

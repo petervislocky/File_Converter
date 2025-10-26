@@ -13,15 +13,22 @@ class BaseFileConverter(ABC):
         self._validate_file_type(file)
         self.file = file
 
+    MIME_TYPE: str
+
     @abstractmethod
     def convert(self, extension: str) -> Path:
         """Override and use to convert file to given extension"""
         pass
 
-    @abstractmethod
     def _validate_file_type(self, file: str) -> None:
-        """Override and use to validate that the file type is correct for the class"""
-        pass
+        """Validates that the mime format of the given file is allowed for the
+        converter class it is being passed to
+        """
+        file_type = self.mime.from_file(file)
+        if not file_type.startswith(f"{self.MIME_TYPE}"):
+            raise ValueError(
+                f"Only {self.MIME_TYPE} files can be passed to this object"
+            )
 
 
 class ImageFile(BaseFileConverter):
@@ -31,6 +38,7 @@ class ImageFile(BaseFileConverter):
     To do operations on a new file, make a new instance.
     """
 
+    MIME_TYPE = "image/"
     SUPPORTED_FORMATS = {
         "jpeg": ".jpg",
         "jpg": ".jpg",
@@ -66,14 +74,6 @@ class ImageFile(BaseFileConverter):
             return img.convert("RGB")
         else:
             return img
-
-    def _validate_file_type(self, file: str) -> None:
-        """Validates that file is an image file, raises ValueError if not
-        Meant to be extended and overridden with file type of choice
-        """
-        file_type = self.mime.from_file(file)
-        if not file_type.startswith("image/"):
-            raise ValueError("Only image files can be passed to this object")
 
     def _validate_extension(self, extension: str) -> str:
         """Formats the extension given for internal class use"""
