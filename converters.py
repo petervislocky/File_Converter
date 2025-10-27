@@ -8,12 +8,21 @@ from PIL import Image
 class BaseFileConverter(ABC):
     """Base class for all other converter classes to inherit from"""
 
+    MIME_TYPE: str
+    SUPPORTED_FORMATS: dict[str, str]
+
     def __init__(self, file: str) -> None:
         self.mime = magic.Magic(mime=True)
         self._validate_file_type(file)
         self.file = file
 
-    MIME_TYPE: str
+    def __init_subclass__(cls, **kwargs) -> None:
+        super().__init_subclass__(**kwargs)
+        required_attrs = ["MIME_TYPE", "SUPPORTED_FORMATS"]
+        missing_attrs = [attr for attr in required_attrs if attr not in cls.__dict__]
+        if missing_attrs:
+            missing = ", ".join(missing_attrs)
+            raise TypeError(f"{cls.__name__} must define {missing}")
 
     @abstractmethod
     def convert(self, extension: str) -> Path:
@@ -86,17 +95,17 @@ class ImageFile(BaseFileConverter):
         return self.SUPPORTED_FORMATS[ext]
 
 
-class DocConverter(BaseFileConverter):
-    """For converter document file formats to other document file formats"""
-
-    SUPPORTED_FORMATS = {
-        "docx": ".docx",
-        "doc": ".doc",
-        "pdf": ".pdf",
-        "txt": ".txt",
-        "md": ".md",
-        "csv": ".csv",
-    }
+# class DocConverter(BaseFileConverter):
+#     """For converter document file formats to other document file formats"""
+#
+#     SUPPORTED_FORMATS = {
+#         "docx": ".docx",
+#         "doc": ".doc",
+#         "pdf": ".pdf",
+#         "txt": ".txt",
+#         "md": ".md",
+#         "csv": ".csv",
+#     }
 
 
 if __name__ == "__main__":
