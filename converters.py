@@ -6,12 +6,16 @@ from PIL import Image
 
 
 class BaseFileConverter(ABC):
-    """Base class for all other converter classes to inherit from"""
+    """Base class for all other converter classes to inherit from
 
-    MIME_TYPE: str
+    MIME_TYPE is the allowed input file formats
+    SUPPORTED_FORMATS is the allowed output file formats
+    """
+
+    MIME_TYPE: tuple
     SUPPORTED_FORMATS: dict[str, str]
 
-    def __init__(self, file: str) -> None:
+    def __init__(self, file: Path) -> None:
         self.mime = magic.Magic(mime=True)
         self._validate_file_type(file)
         self.file = file
@@ -29,15 +33,29 @@ class BaseFileConverter(ABC):
         """Override and use to convert file to given extension"""
         pass
 
-    def _validate_file_type(self, file: str) -> None:
+    def _validate_file_type(self, file: Path) -> None:
         """Validates that the mime format of the given file is allowed for the
         converter class it is being passed to
         """
         file_type = self.mime.from_file(file)
-        if not file_type.startswith(f"{self.MIME_TYPE}"):
+
+        for allowed in self.MIME_TYPE:
+            if file_type.startswith(allowed):
+                return
+
+        raise ValueError(
+            f"Only {', '.join(self.MIME_TYPE)} file types can be passed to this object"
+        )
+
+    def _validate_extension(self, extension: str) -> str:
+        """Formats the extension given for internal class use"""
+        ext = extension.lower().lstrip(".")
+        supported = ",".join(self.SUPPORTED_FORMATS.keys())
+        if ext not in self.SUPPORTED_FORMATS:
             raise ValueError(
-                f"Only {self.MIME_TYPE} files can be passed to this object"
+                f"Unsupported format: {extension}\nSupported formats: {supported}"
             )
+        return self.SUPPORTED_FORMATS[ext]
 
 
 class ImageFile(BaseFileConverter):
@@ -47,7 +65,7 @@ class ImageFile(BaseFileConverter):
     To do operations on a new file, make a new instance.
     """
 
-    MIME_TYPE = "image/"
+    MIME_TYPE = ("image/",)
     SUPPORTED_FORMATS = {
         "jpeg": ".jpg",
         "jpg": ".jpg",
@@ -84,31 +102,30 @@ class ImageFile(BaseFileConverter):
         else:
             return img
 
-    def _validate_extension(self, extension: str) -> str:
-        """Formats the extension given for internal class use"""
-        ext = extension.lower().lstrip(".")
-        supported = ",".join(self.SUPPORTED_FORMATS.keys())
-        if ext not in self.SUPPORTED_FORMATS:
-            raise ValueError(
-                f"Unsupported format: {extension}\nSupported formats: {supported}"
-            )
-        return self.SUPPORTED_FORMATS[ext]
 
+class DocConverter(BaseFileConverter):
+    """For converter document file formats to other document file formats"""
 
-# class DocConverter(BaseFileConverter):
-#     """For converter document file formats to other document file formats"""
-#
-#     SUPPORTED_FORMATS = {
-#         "docx": ".docx",
-#         "doc": ".doc",
-#         "pdf": ".pdf",
-#         "txt": ".txt",
-#         "md": ".md",
-#         "csv": ".csv",
-#     }
+    MIME_TYPE = (
+        "application/pdf",
+        "application/msword",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "text/plainapplication/rtf",
+        "text/csv",
+        "application/vnd.oasis.opendocument.text",
+        "application/vnd.oasis.opendocument.spreadsheet",
+        "application/vnd.oasis.opendocument.presentation",
+        "application/vnd.ms-excel",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    )
+    SUPPORTED_FORMATS = {
+        "docx": ".docx",
+        "doc": ".doc",
+        "pdf": ".pdf",
+        "txt": ".txt",
+        "md": ".md",
+        "csv": ".csv",
+    }
 
-
-if __name__ == "__main__":
-    png_file = r"/home/recluse/Downloads/feather.png"
-    converter = ImageFile(png_file)
-    converter.convert("pdf")
+    def convert(self, extension: str) -> Path:
+        return super().convert(extension)

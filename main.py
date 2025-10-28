@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from converters import ImageFile
 
 
@@ -6,7 +8,8 @@ def main():
     print("File Converter")
     print("Still in development, current UI is for testing purposes only")
 
-    path = input("Enter path of file to convert: ")
+    entered_path = input("Enter path of file to convert: ")
+    path = Path(entered_path).expanduser()
     ext = input("Enter the file format to convert to: ")
     print("Converting file...")
     converter = ImageFile(path)
