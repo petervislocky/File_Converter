@@ -3,6 +3,7 @@ from pathlib import Path
 
 import magic
 from PIL import Image
+import pypandoc
 
 
 class BaseFileConverter(ABC):
@@ -106,6 +107,18 @@ class ImageFile(BaseFileConverter):
 class DocConverter(BaseFileConverter):
     """For converter document file formats to other document file formats"""
 
+    def __init__(self, file: Path) -> None:
+        super().__init__(file)
+        try:
+            import pypandoc
+
+            HAS_PYPANDOC = True
+        except ImportError:
+            HAS_PYPANDOC = False
+            print("Pandoc and pypandoc must be installed to convert document formats")
+            print("Install Pandoc with your package manager or from the Pandoc website")
+            print("Install pypandoc with `pip install pypandoc`")
+
     MIME_TYPE = (
         "application/pdf",
         "application/msword",
@@ -119,13 +132,20 @@ class DocConverter(BaseFileConverter):
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     )
     SUPPORTED_FORMATS = {
-        "docx": ".docx",
-        "doc": ".doc",
-        "pdf": ".pdf",
-        "txt": ".txt",
-        "md": ".md",
-        "csv": ".csv",
+        ".docx": "docx",
+        ".doc": "doc",
+        ".pdf": "pdf",
+        ".txt": "txt",
+        ".md": "md",
+        ".csv": "csv",
     }
 
-    def convert(self, extension: str) -> Path:
-        return super().convert(extension)
+    def convert(self, extension: str):
+        """Converts file to `extension` format
+
+        Args:
+            extension: the type of file to convert to
+        """
+        return pypandoc.convert_file(
+            self.file, extension, outputfile=f"{self.file}.{extension}"
+        )
