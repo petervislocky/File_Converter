@@ -112,9 +112,11 @@ class DocConverter(BaseFileConverter):
         try:
             import pypandoc
 
-            HAS_PYPANDOC = True
+            self.pypandoc = pypandoc
+            self.HAS_PYPANDOC = True
         except ImportError:
-            HAS_PYPANDOC = False
+            self.pypandoc = None
+            self.HAS_PYPANDOC = False
             print("Pandoc and pypandoc must be installed to convert document formats")
             print("Install Pandoc with your package manager or from the Pandoc website")
             print("Install pypandoc with `pip install pypandoc`")
@@ -144,8 +146,11 @@ class DocConverter(BaseFileConverter):
         """Converts file to `extension` format
 
         Args:
-            extension: the type of file to convert to
+            extension: the type of file to convert to, supports `.ext` or `ext`
         """
+        if not self.HAS_PYPANDOC:
+            raise RuntimeError("pypandoc not available, cannot convert document")
+
         return pypandoc.convert_file(
-            self.file, extension, outputfile=f"{self.file}.{extension}"
+            self.file, extension, outputfile=f"output.{extension}"
         )
