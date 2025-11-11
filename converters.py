@@ -2,8 +2,8 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 
 import magic
-from PIL import Image
 import pypandoc
+from PIL import Image
 
 
 class BaseFileConverter(ABC):
