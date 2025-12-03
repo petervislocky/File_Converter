@@ -74,7 +74,6 @@ class ImageFile(BaseFileConverter):
         "webp": ".webp",
         "bmp": ".bmp",
         "gif": ".gif",
-        "pdf": ".pdf",
     }
 
     def convert(self, extension: str) -> Path:
